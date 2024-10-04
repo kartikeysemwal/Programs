@@ -64,7 +64,6 @@ class Graph {
 
         System.out.print(sb);
     }
-
 }
 
 class NCRWithFactorial {
@@ -120,6 +119,8 @@ class EuclideanAlgorithm {
         return gcd;
     }
 
+    // is associative
+    // gcd(a, gcd(b, c)) = gcd(gcd(a, b), c)
     static int gcd(int a, int b) {
         if (a == 0)
             return b;
@@ -127,6 +128,8 @@ class EuclideanAlgorithm {
         return gcd(b % a, a);
     }
 
+    // is associative
+    // lcm(a, lcm(b, c)) = lcm(lcm(a, b), c)
     static int lcm(int a, int b) {
         return (a / gcd(a, b)) * b;
     }
@@ -147,6 +150,7 @@ class EuclideanAlgorithm {
         }
 
         // Prime factors
+        // use only this method to find prime factors
 
         long temp = n;
 
@@ -169,6 +173,22 @@ class EuclideanAlgorithm {
         }
     }
 
+    void seiveOfEratosthenes() {
+        boolean prime[] = new boolean[1005];
+
+        Arrays.fill(prime, true);
+
+        for (int i = 2; i <= Math.sqrt(prime.length); i++) {
+            if (prime[i] == false) {
+                continue;
+            }
+
+            for (int j = i + i; j < prime.length; j = j + i) {
+                prime[j] = false;
+            }
+        }
+    }
+
     void smallestPrime() {
         int size = 1000005;
 
@@ -184,13 +204,15 @@ class EuclideanAlgorithm {
             }
         }
     }
-
 }
 
 class TreeClass {
+
     static ArrayList<Integer> al[];
 
     static int jumps[][];
+
+    // https://leetcode.com/problems/kth-ancestor-of-a-tree-node/description/
 
     static void binaryLifting(int cur, int par) {
 
@@ -232,7 +254,6 @@ class TreeClass {
         }
         System.out.print(sb);
     }
-
 }
 
 class ImportantFunctions {
@@ -808,43 +829,31 @@ class FenwickTree {
 }
 
 class FenwickTree1 {
+    // https://leetcode.com/problems/range-sum-query-mutable/description/
+    // https://leetcode.com/problems/count-of-smaller-numbers-after-self/
 
-    // 1 based indexing
+    int tree[];
 
-    static int fenwick_tree[];
-
-    static void fenwickTree(int arr[]) {
-        int n = arr.length;
-        fenwick_tree = new int[n];
-
-        for (int i = 1; i < n; i++) {
-            update(i, arr[i]);
-        }
-
+    FenwickTree1(int n) {
+        tree = new int[n + 1];
     }
 
-    public static int query(int l, int r) {
-        return prefixSum(r) - prefixSum(l - 1);
-    }
-
-    public static int prefixSum(int index) {
-        int sum = 0;
-
-        while (index > 0) {
-            sum = sum + fenwick_tree[index];
-            index = index - (index & -index);
-        }
-
-        return sum;
-    }
-
-    public static void update(int index, int delta) {
-        while (index < fenwick_tree.length) {
-            fenwick_tree[index] = fenwick_tree[index] + delta;
+    void update(int index, int val) {
+        while (index < tree.length) {
+            tree[index] += val;
             index = index + (index & -index);
         }
     }
 
+    int query(int index) {
+        int ans = 0;
+        while (index > 0) {
+            ans = ans + tree[index];
+            index = index - (index & -index);
+        }
+
+        return ans;
+    }
 }
 
 class HopcroftKarp {
@@ -1059,133 +1068,278 @@ class CustomerComparatorImplementation {
         return head;
     }
 
-    // from Striver's video, is not tested
-    class SegmentTreeMaxInRange {
+}
 
-        int tree[];
-        int arr[];
-        int lazy[];
+// from Striver's video, is not tested
+class SegmentTreeMaxInRange {
 
-        SegmentTreeMaxInRange(int n) {
-            tree = new int[4 * n];
-            lazy = new int[4 * n];
+    int tree[];
+    int arr[];
+    int lazy[];
+
+    SegmentTreeMaxInRange(int n) {
+        tree = new int[4 * n];
+        lazy = new int[4 * n];
+    }
+
+    void build2(int low, int high, int index) {
+        if (low == high) {
+            tree[index] = arr[low];
+            return;
         }
 
-        void build2(int low, int high, int index) {
-            if (low == high) {
-                tree[index] = arr[low];
-                return;
-            }
+        int mid = (low + high) / 2;
 
-            int mid = (low + high) / 2;
+        build2(low, mid, index * 2 + 1);
+        build2(mid + 1, high, index * 2 + 2);
 
-            build2(low, mid, index * 2 + 1);
-            build2(mid + 1, high, index * 2 + 2);
+        tree[index] = Math.max(tree[index * 2 + 1], tree[index * 2 + 2]);
+    }
 
-            tree[index] = Math.max(tree[index * 2 + 1], tree[index * 2 + 2]);
+    int query2(int curLow, int curHigh, int low, int high, int index) {
+        if (curLow >= low && curHigh <= high) {
+            return tree[index];
         }
 
-        int query2(int low, int high, int inputLow, int inputHigh, int index) {
-            if (low >= inputLow && high <= inputHigh) {
-                return tree[index];
-            }
-
-            if (high < inputLow || inputHigh < low) {
-                return Integer.MIN_VALUE;
-            }
-
-            int mid = (low + high) / 2;
-            int res1 = query2(low, mid, inputLow, inputHigh, index * 2 + 1);
-            int res2 = query2(mid + 1, high, inputLow, inputHigh, index * 2 + 2);
-
-            return Math.max(res1, res2);
+        if (curHigh < low || high < curLow) {
+            return Integer.MIN_VALUE;
         }
 
-        void build(int arr[]) {
-            this.arr = arr;
-            build2(0, arr.length - 1, 0);
+        int mid = (curLow + curHigh) / 2;
+        int res1 = query2(curLow, mid, low, high, index * 2 + 1);
+        int res2 = query2(mid + 1, curHigh, low, high, index * 2 + 2);
+
+        return Math.max(res1, res2);
+    }
+
+    void build(int arr[]) {
+        this.arr = arr;
+        build2(0, arr.length - 1, 0);
+    }
+
+    int query(int low, int high) {
+        return query2(0, arr.length - 1, low, high, 0);
+    }
+}
+
+// https://leetcode.com/problems/range-sum-query-mutable/
+class SegmentTreePointUpdate {
+    int tree[];
+    int n;
+
+    SegmentTreePointUpdate(int n) {
+        tree = new int[n * 4 + 1];
+        this.n = n;
+    }
+
+    void build(int nums[]) {
+        build(nums, 0, nums.length - 1, 0);
+    }
+
+    void build(int nums[], int low, int high, int treeIndex) {
+        if (low == high) {
+            tree[treeIndex] = nums[low];
+            return;
         }
 
-        int query(int low, int high) {
-            return query2(0, arr.length - 1, low, high, 0);
+        int mid = (low + high) / 2;
+
+        build(nums, low, mid, treeIndex * 2 + 1);
+        build(nums, mid + 1, high, treeIndex * 2 + 2);
+
+        tree[treeIndex] = tree[treeIndex * 2 + 1] + tree[treeIndex * 2 + 2];
+    }
+
+    void pointUpdate(int index, int val) {
+        pointUpdate(0, n - 1, 0, index, val);
+    }
+
+    void pointUpdate(int low, int high, int treeIndex, int index, int val) {
+        if (low == high) {
+            tree[treeIndex] = val;
+            return;
         }
 
-        void pointUpdate(int index, int low, int high, int node, int val) {
-            if (low == high) {
-                tree[index] = val;
-                return;
-            }
+        int mid = (low + high) / 2;
 
-            int mid = (low + high) / 2;
-
-            if (node <= mid) {
-                pointUpdate(index * 2 + 1, low, mid, node, val);
-            } else {
-                pointUpdate(index * 2 + 2, mid + 1, high, node, val);
-            }
-
-            tree[index] = tree[index * 2 + 1] + tree[index * 2 + 2];
+        if (index <= mid) {
+            pointUpdate(low, mid, treeIndex * 2 + 1, index, val);
+        } else {
+            pointUpdate(mid + 1, high, treeIndex * 2 + 2, index, val);
         }
 
-        void rangeUpdate(int index, int low, int high, int l, int r, int val) {
-            if (lazy[index] != 0) {
-                tree[index] = tree[index] + (high - low + 1) * lazy[index];
+        tree[treeIndex] = tree[treeIndex * 2 + 1] + tree[treeIndex * 2 + 2];
+    }
 
-                if (low != high) {
-                    lazy[index * 2 + 1] += lazy[index];
-                    lazy[index * 2 + 2] += lazy[index];
-                }
+    int query(int left, int right) {
+        return query(0, 0, n - 1, left, right);
+    }
 
-                lazy[index] = 0;
-            }
-
-            if (r < low || high < l) {
-                return;
-            }
-
-            if (low >= l && high <= r) {
-                tree[index] = tree[index] + (high - low + 1) * val;
-
-                if (low != high) {
-                    lazy[index * 2 + 1] += val;
-                    lazy[index * 2 + 2] += val;
-                }
-
-                return;
-            }
-
-            int mid = (low + high) / 2;
-
-            rangeUpdate(index * 2 + 1, low, mid, l, r, val);
-            rangeUpdate(index * 2 + 2, mid + 1, high, l, r, val);
-
-            tree[index] = tree[index * 2 + 1] + tree[index * 1 + 2];
+    int query(int treeIndex, int curLow, int curHigh, int low, int high) {
+        if (curLow > high || curHigh < low) {
+            return 0;
         }
 
-        int queryLazySum(int index, int low, int high, int l, int r) {
-            if (lazy[index] != 0) {
-                tree[index] = tree[index] + (high - low + 1) * lazy[index];
-
-                if (low != high) {
-                    lazy[index * 2 + 1] += lazy[index];
-                    lazy[index * 2 + 2] += lazy[index];
-                }
-
-                lazy[index] = 0;
-            }
-
-            if (r < low || high < l) {
-                return 0;
-            }
-
-            if (low >= l && high <= r) {
-                return tree[index];
-            }
-
-            int mid = (low + high) / 2;
-
-            return queryLazySum(index, low, mid, l, r) + queryLazySum(index, mid + 1, high, l, r);
+        if (low <= curLow && curHigh <= high) {
+            return tree[treeIndex];
         }
+
+        int mid = (curLow + curHigh) / 2;
+
+        int ans = query(treeIndex * 2 + 1, curLow, mid, low, high);
+        ans = ans + query(treeIndex * 2 + 2, mid + 1, curHigh, low, high);
+
+        return ans;
+    }
+}
+
+class NumArray {
+
+    SegmentTree segmentTree;
+
+    public NumArray(int[] nums) {
+        segmentTree = new SegmentTree(nums.length);
+
+        segmentTree.build(nums);
+    }
+
+    public void update(int index, int val) {
+        segmentTree.pointUpdate(index, val);
+    }
+
+    public int sumRange(int left, int right) {
+        return segmentTree.query(left, right);
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * obj.update(index,val);
+ * int param_2 = obj.sumRange(left,right);
+ */
+
+// tested for point update and range query
+// https://leetcode.com/problems/range-sum-query-mutable/description/
+// https://leetcode.com/problems/peaks-in-array/description/
+
+class SegmentTree {
+    int tree[];
+    int lazy[];
+    int n;
+
+    SegmentTree(int n) {
+        this.n = n;
+        tree = new int[4 * n + 5];
+        lazy = new int[4 * n + 5];
+    }
+
+    void build(int arr[]) {
+        buildInternal(arr, 0, arr.length - 1, 0);
+    }
+
+    void buildInternal(int arr[], int low, int high, int treeIndex) {
+        if (low == high) {
+            tree[treeIndex] = arr[low];
+            return;
+        }
+
+        int mid = (low + high) / 2;
+
+        buildInternal(arr, low, mid, treeIndex * 2 + 1);
+        buildInternal(arr, mid + 1, high, treeIndex * 2 + 2);
+
+        tree[treeIndex] = tree[treeIndex * 2 + 1] + tree[treeIndex * 2 + 2];
+    }
+
+    void pointUpdate(int index, int val) {
+        pointUpdateInternal(0, 0, n - 1, index, val);
+    }
+
+    void pointUpdateInternal(int treeIndex, int low, int high, int index, int val) {
+        if (low == high) {
+            tree[treeIndex] = val;
+            return;
+        }
+
+        int mid = (low + high) / 2;
+
+        if (index <= mid) {
+            pointUpdateInternal(treeIndex * 2 + 1, low, mid, index, val);
+        } else {
+            pointUpdateInternal(treeIndex * 2 + 2, mid + 1, high, index, val);
+        }
+
+        tree[treeIndex] = tree[treeIndex * 2 + 1] + tree[treeIndex * 2 + 2];
+    }
+
+    void rangeUpdate(int low, int high, int val) {
+        rangeUpdateInternal(0, 0, n - 1, low, high, val);
+    }
+
+    void rangeUpdateInternal(int treeIndex, int curLow, int curHigh, int low, int high, int val) {
+        if (lazy[treeIndex] != 0) {
+            tree[treeIndex] = tree[treeIndex] + (curHigh - curLow + 1) * lazy[treeIndex];
+
+            if (curLow != curHigh) {
+                lazy[treeIndex * 2 + 1] += lazy[treeIndex];
+                lazy[treeIndex * 2 + 2] += lazy[treeIndex];
+            }
+
+            lazy[treeIndex] = 0;
+        }
+
+        if (high < curLow || curHigh < low) {
+            return;
+        }
+
+        if (curLow >= low && curHigh <= high) {
+            tree[treeIndex] = tree[treeIndex] + (curHigh - curLow + 1) * val;
+
+            if (curLow != curHigh) {
+                lazy[treeIndex * 2 + 1] += val;
+                lazy[treeIndex * 2 + 2] += val;
+            }
+
+            return;
+        }
+
+        int mid = (curLow + curHigh) / 2;
+
+        rangeUpdateInternal(treeIndex * 2 + 1, curLow, mid, low, high, val);
+        rangeUpdateInternal(treeIndex * 2 + 2, mid + 1, curHigh, low, high, val);
+
+        tree[treeIndex] = tree[treeIndex * 2 + 1] + tree[treeIndex * 2 + 2];
+    }
+
+    int query(int low, int high) {
+        return queryLazySumInternal(0, 0, n - 1, low, high);
+    }
+
+    int queryLazySumInternal(int treeIndex, int curLow, int curHigh, int low, int high) {
+        if (lazy[treeIndex] != 0) {
+            tree[treeIndex] = tree[treeIndex] + (curHigh - curLow + 1) * lazy[treeIndex];
+
+            if (curLow != curHigh) {
+                lazy[treeIndex * 2 + 1] += lazy[treeIndex];
+                lazy[treeIndex * 2 + 2] += lazy[treeIndex];
+            }
+
+            lazy[treeIndex] = 0;
+        }
+
+        if (high < curLow || curHigh < low) {
+            return 0;
+        }
+
+        if (curLow >= low && curHigh <= high) {
+            return tree[treeIndex];
+        }
+
+        int mid = (curLow + curHigh) / 2;
+
+        return queryLazySumInternal(treeIndex * 2 + 1, curLow, mid, low, high)
+                + queryLazySumInternal(treeIndex * 2 + 2, mid + 1, curHigh, low, high);
     }
 }
 
@@ -1225,6 +1379,171 @@ class RandomNumber {
     }
 }
 
+class Utils {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Hello world");
+
+        int n = sc.nextInt();
+        sc.nextLine();
+        int b = sc.nextInt();
+        sc.nextLine();
+        String str = sc.nextLine();
+
+        int a = sc.nextInt();
+
+        double da = sc.nextDouble();
+
+        Integer.toBinaryString(a);
+
+        System.out.println(n + " " + str + " " + b + "  " + a + "  " + da);
+
+        System.out.println(Integer.toBinaryString(10));
+    }
+}
+
+// custom hashset equal
+// https://leetcode.com/problems/maximum-value-sum-by-placing-three-rooks-ii/
+class SolutionCustomHashSetEqual {
+
+    static class Node {
+        int row;
+        int col;
+        int val;
+
+        Node(int row, int col, int val) {
+            this.row = row;
+            this.col = col;
+            this.val = val;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            Node node = (Node) o;
+            return row == node.row && col == node.col;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(row, col);
+        }
+    }
+
+    public long maximumValueSum(int[][] board) {
+        int n = board.length;
+        int m = board[0].length;
+
+        HashSet<Node> rowMax = new HashSet<>();
+
+        for (int i = 0; i < n; i++) {
+            PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> {
+                return a.val - b.val;
+            });
+
+            for (int j = 0; j < m; j++) {
+                pq.add(new Node(i, j, board[i][j]));
+
+                if (pq.size() > 3) {
+                    pq.remove();
+                }
+            }
+
+            while (!pq.isEmpty()) {
+                rowMax.add(pq.remove());
+            }
+        }
+
+        ArrayList<Node> al = new ArrayList<>();
+
+        for (int j = 0; j < m; j++) {
+            PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> {
+                return a.val - b.val;
+            });
+
+            for (int i = 0; i < n; i++) {
+                pq.add(new Node(i, j, board[i][j]));
+
+                if (pq.size() > 3) {
+                    pq.remove();
+                }
+            }
+
+            while (!pq.isEmpty()) {
+                Node rem = pq.remove();
+
+                if (rowMax.contains(rem)) {
+                    al.add(rem);
+                }
+            }
+        }
+
+        Collections.sort(al, (a, b) -> {
+            return b.val - a.val;
+        });
+
+        while (al.size() > 11) {
+            al.remove(al.size() - 1);
+        }
+
+        long ans = Long.MIN_VALUE;
+
+        for (int i = 0; i < al.size(); i++) {
+            for (int j = i + 1; j < al.size(); j++) {
+                for (int k = j + 1; k < al.size(); k++) {
+                    HashSet<Integer> setR = new HashSet<>();
+                    HashSet<Integer> setC = new HashSet<>();
+
+                    setR.add(al.get(i).row);
+                    setR.add(al.get(j).row);
+                    setR.add(al.get(k).row);
+
+                    setC.add(al.get(i).col);
+                    setC.add(al.get(j).col);
+                    setC.add(al.get(k).col);
+
+                    if (setR.size() != 3 || setC.size() != 3) {
+                        continue;
+                    }
+
+                    long curAns = (long) al.get(i).val + al.get(j).val + al.get(k).val;
+                    ans = Math.max(ans, curAns);
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+
+// https://leetcode.com/problems/minimum-time-to-revert-word-to-initial-state-ii/
+// https://leetcode.com/problems/find-beautiful-indices-in-the-given-array-ii/description/
+class KMPAlgorithmSolution {
+
+    int[] KMPAlgorithm(String str) {
+        char c[] = str.toCharArray();
+        int n = c.length;
+        int lps[] = new int[n];
+        lps[0] = 0;
+
+        for (int i = 1; i < n; i++) {
+            int prevIndex = lps[i - 1];
+
+            while (prevIndex > 0 && c[prevIndex] != c[i]) {
+                prevIndex = lps[prevIndex - 1];
+            }
+
+            lps[i] = prevIndex + (c[prevIndex] == c[i] ? 1 : 0);
+        }
+
+        return lps;
+    }
+}
+
 // Calculate ways with relative ordering, use nCr
 // like we have (a,b,c,d) (e,f,g,h) and we want to maintain order in each set
 // so there will be 8C4 ways of doing it
@@ -1261,6 +1580,7 @@ class RandomNumber {
 // Probability based questions
 // https://leetcode.com/problems/linked-list-random-node/description/
 // https://leetcode.com/problems/knight-probability-in-chessboard/editorial/
+// https://leetcode.com/problems/random-pick-with-weight/
 
 // TreeSet and TreeMap good APIs description
 // https://leetcode.com/problems/range-module/description/
@@ -1277,7 +1597,7 @@ class RandomNumber {
 // BFS
 // https://www.interviewbit.com/problems/useful-extra-edges/
 
-// O(1) inorder traversal of tree, Morris Traversal
+// O(1) space inorder traversal of tree, Morris Traversal
 // https://www.cnblogs.com/AnnieKim/archive/2013/06/15/morristraversal.html
 
 // In every stack question keep in mind stack.peek() plays a very important role
@@ -1285,3 +1605,26 @@ class RandomNumber {
 
 // Out of the box question
 // https://leetcode.com/problems/trapping-rain-water-ii/description/
+
+// Bipartite graph
+// https://leetcode.com/problems/is-graph-bipartite/description/
+
+// https://leetcode.com/problems/find-the-count-of-good-integers/description/
+// if we have 11234555 and we want to find out unique shuffle of the numbers it
+// would be 8! / (2! * 3!)
+
+// linked list cycle detection
+// https://leetcode.com/problems/linked-list-cycle-ii/description/
+// let distance travelled by slow is d. Let from start to cycle point distance
+// is x and in cycle to meet fast it is y
+// so d = (x + y)
+// fast travels 2 times as of slow, so fast distance is 2d. As the slow meets
+// fast, fast would have covered the cycle some n times
+// so fast distance = x + y + n = 2d = 2(x + y)
+// this gives cycle n = x + y and x = n - y
+// now if we start from head, to reach the cycle point we will cover x distance
+// also from the meeting point if we will go x we will complete a cycle and be
+// at position from where cycle starts
+
+// Rabin Karp
+// https://leetcode.com/problems/minimum-time-to-revert-word-to-initial-state-ii/
