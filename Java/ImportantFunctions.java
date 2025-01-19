@@ -66,6 +66,8 @@ class Graph {
     }
 }
 
+// optimize inverse
+// https://leetcode.com/problems/maximum-and-minimum-sums-of-at-most-size-k-subsequences/description/
 class NCRWithFactorial {
     // NCR and Factorial
     static int mod = 1000000007;
