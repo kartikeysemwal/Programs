@@ -6,6 +6,11 @@ public class B {
         Scanner sc = new Scanner(System.in);
         StringBuilder sb = new StringBuilder();
 
+        String a1 = "a";
+        String b1 = "b";
+
+        System.out.println(a1.compareTo(b1));
+
         Integer ab = null;
         String strAb = null;
 
@@ -65,12 +70,8 @@ public class B {
         tree.add(4);
         tree.add(5);
 
-        var iterator = tree.tailSet(0).iterator();
-
-        while (iterator.hasNext()) {
-            System.out.println(iterator.next());
-            iterator.remove();
-        }
+        ArrayList<Integer> testClone = new ArrayList<>();
+        testClone.add(1);
 
         var test = tree.headSet(100000);
         System.out.println(test.size());
@@ -176,5 +177,8 @@ public class B {
 
         System.out.println(-2 % 2);
 
+        long lp = Long.parseLong("a");
+        Double.parseDouble("a");
+        Float.parseFloat("b");
     }
 }

@@ -1630,3 +1630,6 @@ class KMPAlgorithmSolution {
 
 // Rabin Karp
 // https://leetcode.com/problems/minimum-time-to-revert-word-to-initial-state-ii/
+
+// Graph cycle rank
+// https://leetcode.com/problems/critical-connections-in-a-network/description/

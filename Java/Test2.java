@@ -1,16 +1,28 @@
-import java.util.*;
+class ThreadTest {
+    volatile static int counter;
 
-class PrintNumbers {
-    static int counter = 1;
-
-    int limit;
-
-    PrintNumbers(int limit) {
-        this.limit = limit;
+    ThreadTest() {
+        counter = 0;
     }
 
-    public synchronized void printEven() {
-        while (counter <= limit) {
+    synchronized void printOdd() {
+        while (counter < 10) {
+            if (counter % 2 == 1) {
+                System.out.println(Thread.currentThread().getName() + " " + counter);
+                counter++;
+                notifyAll();
+            } else {
+                try {
+                    wait();
+                } catch (Exception ex) {
+
+                }
+            }
+        }
+    }
+
+    synchronized void printEven() {
+        while (counter < 10) {
             if (counter % 2 == 0) {
                 System.out.println(Thread.currentThread().getName() + " " + counter);
                 counter++;
@@ -19,46 +31,28 @@ class PrintNumbers {
                 try {
                     wait();
                 } catch (Exception ex) {
-                    System.out.println("Exception " + ex.getMessage());
-                }
-            }
-        }
-    }
 
-    public synchronized void printOdd() {
-        while (counter <= limit) {
-            if (counter % 2 != 0) {
-                System.out.println(Thread.currentThread().getName() + " " + counter);
-                counter++;
-                notifyAll();
-            } else {
-                try {
-                    wait();
-                } catch (Exception ex) {
-                    System.out.println("Exception " + ex.getMessage());
                 }
             }
         }
     }
 }
 
-public class C {
+public class Test2 {
     public static void main(String[] args) {
-        PrintNumbers printNumbers = new PrintNumbers(10);
+        ThreadTest threadTest = new ThreadTest();
 
         Thread t1 = new Thread(new Runnable() {
             public void run() {
-                printNumbers.printEven();
+                threadTest.printEven();
             }
         });
-        t1.setName("PrintEven");
 
         Thread t2 = new Thread(new Runnable() {
             public void run() {
-                printNumbers.printOdd();
+                threadTest.printOdd();
             }
         });
-        t2.setName("PrintOdd");
 
         t1.start();
         t2.start();
