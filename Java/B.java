@@ -9,6 +9,10 @@ public class B {
         String a1 = "a";
         String b1 = "b";
 
+        if (Character.isAlphabetic('a') || Character.isDigit(0)) {
+
+        }
+
         System.out.println(a1.compareTo(b1));
 
         Integer ab = null;

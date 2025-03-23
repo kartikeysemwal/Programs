@@ -1633,3 +1633,6 @@ class KMPAlgorithmSolution {
 
 // Graph cycle rank
 // https://leetcode.com/problems/critical-connections-in-a-network/description/
+
+// Triangular matrix good question, binary search
+// https://leetcode.com/problems/maximum-number-of-groups-with-increasing-length/description/
